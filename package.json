@@ -1,0 +1,29 @@
+{
+  "name": "house-expenses-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node .",
+    "dev": "nodemon ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Venedictto/House-Expenses-Backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Venedictto/House-Expenses-Backend/issues"
+  },
+  "homepage": "https://github.com/Venedictto/House-Expenses-Backend#readme",
+  "dependencies": {
+    "apollo-server": "^2.12.0",
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^8.2.0",
+    "mongoose": "^5.9.10"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
+  }
+}

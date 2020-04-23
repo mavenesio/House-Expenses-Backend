@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+var ObjectId = require('mongoose').Types.ObjectId;
 
 
 const ExpenseSchema = new mongoose.Schema({
@@ -22,6 +23,14 @@ const ExpenseSchema = new mongoose.Schema({
     currentMonth: {
         type: Number,
         required: true,
+     },
+     userId:{
+        type:ObjectId,
+        required:true,
+     },
+     created:{
+         type:Date,
+         default: Date.now(),
      }
 });
 

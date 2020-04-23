@@ -18,7 +18,6 @@ const resolvers = {
             const currentMonth = (new Date()).getMonth();
             try {               
                 const expenses = await Expense.find({"userId" : userId, "currentMonth" : currentMonth+1 });
-                console.log('Get expenses: ',expenses.length);
                 return expenses;
             } catch (err) {
                 console.log(err);
@@ -60,7 +59,6 @@ const resolvers = {
                     expense.save();
                     expenses.push(expense);
                 }
-                console.log('Get expenses: ',expenses.length);
                 return expenses;
             } catch (err) {
                 console.log(err);

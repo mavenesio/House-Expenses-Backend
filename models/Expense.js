@@ -20,10 +20,14 @@ const ExpenseSchema = new mongoose.Schema({
         type: Number,
         required: true,
      },
-    currentMonth: {
-        type: Number,
-        required: true,
-     },
+     currentMonth: {
+         type: Number,
+         required: true,
+      },
+      paid: {
+          type: Boolean,
+          default: false
+       },
      userId:{
         type:ObjectId,
         required:true,

@@ -65,6 +65,21 @@ const resolvers = {
                 return (err);
             }
         },
+        payExpense: async (_, {input}, ctx) => {
+            const {expenseId, paid} = input;
+            const { user } = ctx;
+            try {
+                const expense = await Expense.findById(new ObjectId(expenseId));
+                if(!expense) {throw new Error('Expense not found')}
+                await Expense.updateMany({_id: new ObjectId(expenseId)}, { $set: { paid: paid } });
+                return expense;
+
+            } catch (err) {
+                console.log(err);
+                return (err);
+            }
+
+        },
         addUser: async (_, {input}, ctx) => {
             const {email, password} = input;
             try { 

@@ -35,6 +35,7 @@ const typeDefs = gql`
         startMonth: Int
         startYear: Int
         currentMonth: Int
+        paid:Boolean
     }
 
     input ExpenseInput {
@@ -53,6 +54,11 @@ const typeDefs = gql`
         startYear: Int!
     }
 
+    input payExpenseInput {
+        expenseId: ID!
+        paid: Boolean!
+    }
+
     type Query {
         getExpenses : [Expense]
         getUser(token: String!): User
@@ -61,6 +67,7 @@ const typeDefs = gql`
     type Mutation {
         addExpense(input: ExpenseInput!): Expense
         addRangeExpenses(input: RangeExpenseInput!): [Expense]
+        payExpense(input: payExpenseInput!): Expense
 
         userAuthorization(input: AuthorizationInput):Token 
         addUser(input: UserInput!): User

@@ -58,6 +58,10 @@ const typeDefs = gql`
         expenseId: ID!
         paid: Boolean!
     }
+    input updateExpenseInput {
+        expenseId: ID!
+        amount: Int!
+    }
 
     type Query {
         getExpenses : [Expense]
@@ -68,6 +72,7 @@ const typeDefs = gql`
         addExpense(input: ExpenseInput!): Expense
         addRangeExpenses(input: RangeExpenseInput!): [Expense]
         payExpense(input: payExpenseInput!): Expense
+        updateExpense(input: updateExpenseInput!): Expense
 
         userAuthorization(input: AuthorizationInput):Token 
         addUser(input: UserInput!): User

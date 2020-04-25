@@ -52,7 +52,7 @@ const resolvers = {
                             amount: amount,
                             startMonth: startMonth,
                             startYear: startYear,
-                            currentMonth: (startMonth + i) % 12,
+                            currentMonth: ((startMonth + i) % 12)+1,
                             userId: new ObjectId(ctx.user.id) 
                         }
                         );
@@ -67,11 +67,24 @@ const resolvers = {
         },
         payExpense: async (_, {input}, ctx) => {
             const {expenseId, paid} = input;
-            const { user } = ctx;
             try {
                 const expense = await Expense.findById(new ObjectId(expenseId));
                 if(!expense) {throw new Error('Expense not found')}
-                await Expense.updateMany({_id: new ObjectId(expenseId)}, { $set: { paid: paid } });
+                await Expense.updateOne({_id: new ObjectId(expenseId)}, { $set: { paid: paid } });
+                return expense;
+
+            } catch (err) {
+                console.log(err);
+                return (err);
+            }
+
+        },
+        updateExpense: async (_, {input}, ctx) => {
+            const {expenseId, amount} = input;
+            try {
+                const expense = await Expense.findById(new ObjectId(expenseId));
+                if(!expense) {throw new Error('Expense not found')}
+                await Expense.updateOne({_id: new ObjectId(expenseId)}, { $set: { amount: amount } });
                 return expense;
 
             } catch (err) {

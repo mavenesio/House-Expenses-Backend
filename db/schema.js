@@ -35,6 +35,7 @@ const typeDefs = gql`
         startMonth: Int
         startYear: Int
         currentMonth: Int
+        currentYear: Int
         paid:Boolean
     }
 
@@ -69,8 +70,7 @@ const typeDefs = gql`
     }
 
     type Mutation {
-        addExpense(input: ExpenseInput!): Expense
-        addRangeExpenses(input: RangeExpenseInput!): [Expense]
+        addRangeExpenses(input: RangeExpenseInput!) : Expense
         payExpense(input: payExpenseInput!): Expense
         updateExpense(input: updateExpenseInput!): Expense
 

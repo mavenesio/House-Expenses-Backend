@@ -24,6 +24,10 @@ const ExpenseSchema = new mongoose.Schema({
          type: Number,
          required: true,
       },
+      currentYear: {
+          type: Number,
+          required: true,
+       },
       paid: {
           type: Boolean,
           default: false
@@ -31,6 +35,7 @@ const ExpenseSchema = new mongoose.Schema({
      userId:{
         type:ObjectId,
         required:true,
+        ref:'User'
      },
      created:{
          type:Date,

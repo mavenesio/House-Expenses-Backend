@@ -15,9 +15,9 @@ const resolvers = {
     Query: {
         getExpenses: async (_, {input}, ctx) => {
             const userId = new ObjectId(ctx.user.id);
-            const currentMonth = (new Date()).getMonth();
+            const now = new Date();
             try {               
-                const expenses = await Expense.find({"userId" : userId, "currentMonth" : currentMonth+1 });
+                const expenses = await Expense.find({"userId" : userId, "currentMonth" : now.getMonth(), "currentYear": now.getFullYear() });
                 return expenses;
             } catch (err) {
                 console.log(err);
@@ -30,16 +30,6 @@ const resolvers = {
         }
     },
     Mutation: {
-        addExpense: async (_, {input}, ctx) => {
-            try {
-                const expense = new Expense(input);
-                expense.save();
-                return expense;
-            } catch (err) {
-                console.log(err);
-                return (err);
-            }
-        },
         addRangeExpenses: async (_, {input}, ctx) => {
             const {monthAmount, name, amount, startMonth, startYear} = input;
             const { user } = ctx;
@@ -52,14 +42,16 @@ const resolvers = {
                             amount: amount,
                             startMonth: startMonth,
                             startYear: startYear,
-                            currentMonth: ((startMonth + i) % 12)+1,
+                            currentMonth: ((startMonth + i) % 11),
+                            currentYear: (startMonth + i > 11) ? startYear+1 : startYear,
                             userId: new ObjectId(ctx.user.id) 
                         }
                         );
                     expense.save();
                     expenses.push(expense);
                 }
-                return expenses;
+                // @ts-ignore
+                return expenses.find(expense => expense.currentMonth === startMonth);
             } catch (err) {
                 console.log(err);
                 return (err);
@@ -68,11 +60,10 @@ const resolvers = {
         payExpense: async (_, {input}, ctx) => {
             const {expenseId, paid} = input;
             try {
-                const expense = await Expense.findById(new ObjectId(expenseId));
+                let expense = await Expense.findById(new ObjectId(expenseId));
                 if(!expense) {throw new Error('Expense not found')}
-                await Expense.updateOne({_id: new ObjectId(expenseId)}, { $set: { paid: paid } });
+                expense = await Expense.findOneAndUpdate({_id: new ObjectId(expenseId)}, { $set: { paid: paid } }, {new: true});
                 return expense;
-
             } catch (err) {
                 console.log(err);
                 return (err);
@@ -82,9 +73,9 @@ const resolvers = {
         updateExpense: async (_, {input}, ctx) => {
             const {expenseId, amount} = input;
             try {
-                const expense = await Expense.findById(new ObjectId(expenseId));
+                let expense = await Expense.findById(new ObjectId(expenseId));
                 if(!expense) {throw new Error('Expense not found')}
-                await Expense.updateOne({_id: new ObjectId(expenseId)}, { $set: { amount: amount } });
+                expense = await Expense.findOneAndUpdate({_id: new ObjectId(expenseId)}, { $set: { amount: amount } }, {new: true});
                 return expense;
 
             } catch (err) {

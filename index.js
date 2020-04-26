@@ -9,7 +9,9 @@ connectDB();
 
 
 //server
-const server = new ApolloServer({
+const server = new ApolloServer({cors: {
+    origin: '*',			// <- allow request from all domains
+    credentials: true},		// <- enable CORS response for requests with credentials (cookies, http authentication)
     typeDefs,
     resolvers,
     context: ({req}) => {

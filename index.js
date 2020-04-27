@@ -13,9 +13,12 @@ const server = new ApolloServer({
     typeDefs,
     resolvers,
     cors: {
-          origin: '*',
-          credentials: true
-        },
+      origin: "*",
+      methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+      credentials: true
+    },
     context: ({req}) => {
         const token = req.headers['authorization'] || '';
         if(token){

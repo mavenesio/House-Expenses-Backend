@@ -9,11 +9,13 @@ connectDB();
 
 
 //server
-const server = new ApolloServer({cors: {
-    origin: '*',			// <- allow request from all domains
-    credentials: true},		// <- enable CORS response for requests with credentials (cookies, http authentication)
+const server = new ApolloServer({
     typeDefs,
     resolvers,
+    cors: {
+          origin: '*',
+          credentials: true
+        },
     context: ({req}) => {
         const token = req.headers['authorization'] || '';
         if(token){
@@ -36,7 +38,7 @@ const server = new ApolloServer({cors: {
 
 // run server
 
-server.listen({port: process.env.PORT || 4000}).then(
+server.listen().then(
     ({url}) => {
 
         console.log(`server ready in URL ${url}`);        

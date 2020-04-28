@@ -57,14 +57,19 @@ const typeDefs = gql`
         startMonth: Int!
         startYear: Int!
     }
-
-    input payExpenseInput {
+    input DeleteExpenseInput {
         expenseId: ID!
-        paid: Boolean!
+        deleteType: String!
+        name: String!
     }
-    input updateExpenseInput {
+    type DeleteExpenseOutput {
+        success: Boolean
+    }
+
+    input UpdateExpenseInput {
         expenseId: ID!
-        amount: Int!
+        amount: Float
+        paid: Boolean
     }
 
     type Query {
@@ -74,12 +79,11 @@ const typeDefs = gql`
 
     type Mutation {
         addRangeExpenses(input: RangeExpenseInput!) : Expense
-        payExpense(input: payExpenseInput!): Expense
-        updateExpense(input: updateExpenseInput!): Expense
+        updateExpense(input: UpdateExpenseInput!): Expense
+        deleteExpense(input: DeleteExpenseInput!): DeleteExpenseOutput
 
         userAuthorization(input: AuthorizationInput):Token 
         addUser(input: UserInput!): User
-
     }
 `;
 

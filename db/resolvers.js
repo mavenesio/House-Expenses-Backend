@@ -45,7 +45,7 @@ const resolvers = {
                             startYear: startYear,
                             currentMonth: ((startMonth + i) % 11),
                             currentYear: (startMonth + i > 11) ? startYear+1 : startYear,
-                            userId: new ObjectId(ctx.user.id) 
+                            userId: new ObjectId(user.id) 
                         }
                         );
                     expense.save();
@@ -58,25 +58,36 @@ const resolvers = {
                 return (err);
             }
         },
-        payExpense: async (_, {input}, ctx) => {
-            const {expenseId, paid} = input;
+        deleteExpense: async (_, {input}, ctx) => {
+            const {expenseId, deleteType, name} = input;
+            const userId = new ObjectId(ctx.user.id);
             try {
-                let expense = await Expense.findById(new ObjectId(expenseId));
-                if(!expense) {throw new Error('Expense not found')}
-                expense = await Expense.findOneAndUpdate({_id: new ObjectId(expenseId)}, { $set: { paid: paid } }, {new: true});
-                return expense;
+                if(ctx.user === undefined) throw new Error('User is not found.');
+                let query = {userId: userId};
+                console.log(deleteType);
+                if(deleteType === 'One') query = {...query, _id: ObjectId(expenseId)}
+                if(deleteType === 'allNonPayments') query = {...query, name: name, paid: false}
+                if(deleteType === 'All') query = {...query, name: name}
+                console.log('*', query);
+                const data = await Expense.remove(query);
+                console.log('*', data);
+                return true;                
             } catch (err) {
                 console.log(err);
                 return (err);
             }
-
         },
         updateExpense: async (_, {input}, ctx) => {
-            const {expenseId, amount} = input;
+            const {expenseId, amount, paid} = input;
             try {
+                if(amount === undefined && paid === undefined) throw new Error('Invalid parameters.')
                 let expense = await Expense.findById(new ObjectId(expenseId));
                 if(!expense) {throw new Error('Expense not found')}
-                expense = await Expense.findOneAndUpdate({_id: new ObjectId(expenseId)}, { $set: { amount: amount } }, {new: true});
+                let query = { $set: {  } };
+                if(amount !== undefined) query.$set = { ...query.$set, amount: amount };
+                if(paid !== undefined) query.$set = {...query.$set,paid: paid };
+                expense = await Expense.findOneAndUpdate(
+                    {_id: new ObjectId(expenseId)}, query, {new: true});
                 return expense;
 
             } catch (err) {

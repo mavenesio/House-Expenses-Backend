@@ -64,13 +64,10 @@ const resolvers = {
             try {
                 if(ctx.user === undefined) throw new Error('User is not found.');
                 let query = {userId: userId};
-                console.log(deleteType);
                 if(deleteType === 'One') query = {...query, _id: ObjectId(expenseId)}
                 if(deleteType === 'allNonPayments') query = {...query, name: name, paid: false}
                 if(deleteType === 'All') query = {...query, name: name}
-                console.log('*', query);
                 const data = await Expense.remove(query);
-                console.log('*', data);
                 return true;                
             } catch (err) {
                 console.log(err);

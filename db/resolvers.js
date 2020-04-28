@@ -31,7 +31,7 @@ const resolvers = {
     },
     Mutation: {
         addRangeExpenses: async (_, {input}, ctx) => {
-            const {monthAmount, name, amount, startMonth, startYear} = input;
+            const {monthAmount, name, amount, startMonth, startYear, type} = input;
             const { user } = ctx;
             try {
                 const expenses = [];
@@ -40,6 +40,7 @@ const resolvers = {
                         {
                             name: name,
                             amount: amount,
+                            type: type,
                             startMonth: startMonth,
                             startYear: startYear,
                             currentMonth: ((startMonth + i) % 11),

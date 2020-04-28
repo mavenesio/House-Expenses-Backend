@@ -31,6 +31,7 @@ const typeDefs = gql`
     type Expense {
         id: ID
         name: String
+        type: String
         amount: Float
         startMonth: Int
         startYear: Int
@@ -41,6 +42,7 @@ const typeDefs = gql`
 
     input ExpenseInput {
         name: String!
+        type: String!
         amount: Float!
         currentMonth: Int!
         startMonth: Int!
@@ -49,6 +51,7 @@ const typeDefs = gql`
 
     input RangeExpenseInput {
         name: String!
+        type: String!
         amount: Float!
         monthAmount: Int!
         startMonth: Int!

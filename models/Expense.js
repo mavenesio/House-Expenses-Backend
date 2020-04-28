@@ -3,11 +3,16 @@ var ObjectId = require('mongoose').Types.ObjectId;
 
 
 const ExpenseSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
+      name: {
+         type: String,
+         required: true,
+         trim: true,
+      },
+      type: {
+         type: String,
+         required: true,
+         trim: true,
+      },
     amount: {
         type: Number,
         required: true,

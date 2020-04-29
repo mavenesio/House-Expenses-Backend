@@ -14,10 +14,10 @@ const createToken = (user, secret, expiresIn) => {
 const resolvers = {
     Query: {
         getExpenses: async (_, {input}, ctx) => {
+            const {month, year} = input;
             const userId = new ObjectId(ctx.user.id);
-            const now = new Date();
             try {               
-                const expenses = await Expense.find({"userId" : userId, "currentMonth" : now.getMonth(), "currentYear": now.getFullYear() });
+                const expenses = await Expense.find({"userId" : userId, "currentMonth" : month, "currentYear": year });
                 return expenses;
             } catch (err) {
                 console.log(err);

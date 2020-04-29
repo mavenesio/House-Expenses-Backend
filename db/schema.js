@@ -39,6 +39,10 @@ const typeDefs = gql`
         currentYear: Int
         paid:Boolean
     }
+    input GetExpensesInput {
+        month: Int!,
+        year: Int!
+    }
 
     input ExpenseInput {
         name: String!
@@ -74,7 +78,7 @@ const typeDefs = gql`
     }
 
     type Query {
-        getExpenses : [Expense]
+        getExpenses(input: GetExpensesInput!) : [Expense]
         getUser(token: String!): User
     }
 

@@ -70,6 +70,7 @@ const typeDefs = gql`
         expenseId: ID!
         amount: Float
         paid: Boolean
+        type: String
     }
 
     type Query {

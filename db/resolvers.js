@@ -75,13 +75,13 @@ const resolvers = {
             }
         },
         updateExpense: async (_, {input}, ctx) => {
-            const {expenseId, amount, paid} = input;
+            const {expenseId, amount, paid, type} = input;
             try {
-                if(amount === undefined && paid === undefined) throw new Error('Invalid parameters.')
+                if(amount === undefined && type === undefined && paid === undefined) throw new Error('Invalid parameters.')
                 let expense = await Expense.findById(new ObjectId(expenseId));
                 if(!expense) {throw new Error('Expense not found')}
                 let query = { $set: {  } };
-                if(amount !== undefined) query.$set = { ...query.$set, amount: amount };
+                if(amount !== undefined) query.$set = { ...query.$set, amount: amount, type: type };
                 if(paid !== undefined) query.$set = {...query.$set,paid: paid };
                 expense = await Expense.findOneAndUpdate(
                     {_id: new ObjectId(expenseId)}, query, {new: true});

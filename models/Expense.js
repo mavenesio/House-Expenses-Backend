@@ -37,15 +37,15 @@ const ExpenseSchema = new mongoose.Schema({
           type: Boolean,
           default: false
        },
-     userId:{
-        type:ObjectId,
-        required:true,
-        ref:'User'
-     },
-     created:{
-         type:Date,
-         default: Date.now(),
-     }
+      userId:{
+         type:ObjectId,
+         required:true,
+         ref:'User'
+      },
+      created:{
+            type:Date,
+            default: Date.now(),
+      }
 });
 
 

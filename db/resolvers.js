@@ -1,13 +1,15 @@
 const Expense = require('../models/Expense');
 const User = require('../models/User');
+const UserPreference = require('../models/UserPreference');
 const bcrypjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 var ObjectId = require('mongoose').Types.ObjectId;
 require('dotenv').config({path: 'variable.env'});
 
-const createToken = (user, secret, expiresIn) => {
+const createToken = (user, userMode, secret, expiresIn) => {
     const {id, email, firstName, lastName } = user;
-    return jwt.sign({id, email, firstName, lastName},secret, {expiresIn});
+    const mode = userMode.value;
+    return jwt.sign({id, email, firstName, lastName, mode},secret, {expiresIn});
 }
 
 // Resolvers
@@ -45,9 +47,8 @@ const resolvers = {
                             startYear: startYear,
                             currentMonth: ((startMonth + i) % 11),
                             currentYear: (startMonth + i > 11) ? startYear+1 : startYear,
-                            userId: new ObjectId(user.id) 
-                        }
-                        );
+                            userId: new ObjectId(user.id),
+                        });
                     expense.save();
                     expenses.push(expense);
                 }
@@ -94,16 +95,42 @@ const resolvers = {
 
         },
         addUser: async (_, {input}, ctx) => {
-            const {email, password} = input;
+            const {email, password, firstName, lastName} = input;
             try { 
                 const existingUser = await User.findOne({email});
                 if(existingUser) {throw new Error('Existing User')}
                 const salt = await bcrypjs.genSalt(10);
-                input.password = await bcrypjs.hash(password, salt); 
+                let cryptedPassword = await bcrypjs.hash(password, salt); 
                           
-                const user = new User(input);
-                user.save();
+                const user = new User({
+                    firstName,
+                    lastName,
+                    email,
+                    password: cryptedPassword,
+                });
+                await user.save(((err, user) => {
+                    new UserPreference({
+                        key:'Mode',
+                        value:'dark',
+                        userId: new ObjectId(user._id),  
+                    }).save()
+                }));
                 return user;
+            } catch (err) {
+                return (err);
+            }
+        },
+        setUserPreference: async(_, {input}, ctx) => {
+            const {key, value} = input;
+            try {
+                let preference = await UserPreference.findOne({key: key, userId: new ObjectId(ctx.user.id)});
+                if(!preference) {throw new Error('Preference not found')}
+                const query = { $set: {value: value  } };
+
+                preference = await UserPreference.findOneAndUpdate(
+                    {key: key, userId: new ObjectId(ctx.user.id)}, query, {new: true});
+                return preference;
+
             } catch (err) {
                 console.log(err);
                 return (err);
@@ -116,12 +143,11 @@ const resolvers = {
             if(!existingUser) {throw new Error('User not found')};
             // @ts-ignore
             const correctPassword = await bcrypjs.compare(password, existingUser.password);
-            if(!correctPassword){
-                throw new Error('Incorrect password');
-            }
+            if(!correctPassword){ throw new Error('Incorrect password')}
+            const userMode = await UserPreference.findOne({userId: new ObjectId(existingUser._id), key: 'Mode'});
 
             return {
-                token: createToken(existingUser, process.env.SECRET, '24h')
+                token: createToken(existingUser, userMode, process.env.SECRET, '24h'),
             }
         }
     }

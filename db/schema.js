@@ -9,6 +9,12 @@ const typeDefs = gql`
         lastName: String
         email: String
     }
+    type UserPreference {
+        id: ID
+        key:String
+        value:String
+        userId: ID
+    }
     input UserInput {
         firstName: String
         lastName: String
@@ -18,7 +24,8 @@ const typeDefs = gql`
 
     # AUTHORIZATION
 
-    type Token {
+    type LoginOutput {
+        mode: String
         token: String
     }
     input AuthorizationInput {
@@ -76,6 +83,10 @@ const typeDefs = gql`
         paid: Boolean
         type: String
     }
+    input UserPreferenceInput {
+        key:String
+        value: String
+    }
 
     type Query {
         getExpenses(input: GetExpensesInput!) : [Expense]
@@ -87,8 +98,10 @@ const typeDefs = gql`
         updateExpense(input: UpdateExpenseInput!): Expense
         deleteExpense(input: DeleteExpenseInput!): DeleteExpenseOutput
 
-        userAuthorization(input: AuthorizationInput):Token 
+        userAuthorization(input: AuthorizationInput):LoginOutput 
         addUser(input: UserInput!): User
+
+        setUserPreference(input: UserPreferenceInput!): UserPreference
     }
 `;
 

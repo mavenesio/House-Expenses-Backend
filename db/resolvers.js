@@ -17,6 +17,7 @@ const resolvers = {
     Query: {
         getExpenses: async (_, {input}, ctx) => {
             const {month, year} = input;
+            console.log(input);
             const userId = new ObjectId(ctx.user.id);
             try {               
                 const expenses = await Expense.find({"userId" : userId, "currentMonth" : month, "currentYear": year });
@@ -34,10 +35,13 @@ const resolvers = {
     Mutation: {
         addRangeExpenses: async (_, {input}, ctx) => {
             const {monthAmount, name, amount, startMonth, startYear, type} = input;
+            console.log('month: ',startMonth, 'year: ',startYear)
             const { user } = ctx;
             try {
                 const expenses = [];
                 for(let i = 0; i < monthAmount; i++ ){
+                    console.log('month: ', ((startMonth + i) % 12), 'year: ', startYear + Math.floor((startMonth + i) /12));
+                    console.log('-----------------------')
                     const expense = new Expense(
                         {
                             name: name,
@@ -45,8 +49,8 @@ const resolvers = {
                             type: type,
                             startMonth: startMonth,
                             startYear: startYear,
-                            currentMonth: ((startMonth + i) % 11),
-                            currentYear: (startMonth + i > 11) ? startYear+1 : startYear,
+                            currentMonth: ((startMonth + i) % 12),
+                            currentYear: startYear + Math.floor((startMonth + i) /12),
                             userId: new ObjectId(user.id),
                         });
                     expense.save();

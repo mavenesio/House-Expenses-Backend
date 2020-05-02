@@ -46,6 +46,9 @@ const typeDefs = gql`
         currentYear: Int
         paid:Boolean
     }
+    type ExpenseNames {
+        name: String
+    }
     input GetExpensesInput {
         month: Int!,
         year: Int!
@@ -73,6 +76,9 @@ const typeDefs = gql`
         deleteType: String!
         name: String!
     }
+    input getExpenseDataInput {
+        name: String!
+    }
     type DeleteExpenseOutput {
         success: Boolean
     }
@@ -83,19 +89,26 @@ const typeDefs = gql`
         paid: Boolean
         type: String
     }
+    input UpdateExpenseNameInput {
+        newName: String!
+        oldName: String!
+    }
     input UserPreferenceInput {
         key:String
         value: String
     }
 
     type Query {
-        getExpenses(input: GetExpensesInput!) : [Expense]
         getUser(token: String!): User
+        getExpenses(input: GetExpensesInput!) : [Expense]
+        getAllExpenses: [ExpenseNames]
+        getExpenseData(input: getExpenseDataInput): [Expense]
     }
 
     type Mutation {
         addRangeExpenses(input: RangeExpenseInput!) : Expense
         updateExpense(input: UpdateExpenseInput!): Expense
+        updateExpenseName(input: UpdateExpenseNameInput!): Expense
         deleteExpense(input: DeleteExpenseInput!): DeleteExpenseOutput
 
         userAuthorization(input: AuthorizationInput):LoginOutput 

@@ -17,10 +17,31 @@ const resolvers = {
     Query: {
         getExpenses: async (_, {input}, ctx) => {
             const {month, year} = input;
-            console.log(input);
             const userId = new ObjectId(ctx.user.id);
             try {               
                 const expenses = await Expense.find({"userId" : userId, "currentMonth" : month, "currentYear": year });
+                return expenses;
+            } catch (err) {
+                console.log(err);
+                return (err);
+            }
+        },
+        getAllExpenses: async (_, {input}, ctx) => {
+            const userId = new ObjectId(ctx.user.id);
+            try {               
+                const expenses = await Expense.find({"userId" : userId})
+                                              .distinct("name", (error, results) => results);
+                return expenses.map(value => {return ({name: value})});
+            } catch (err) {
+                console.log(err);
+                return (err);
+            }
+        },
+        getExpenseData: async (_, {input}, ctx) => {
+            const {name} = input;
+            const userId = new ObjectId(ctx.user.id);
+            try {               
+                const expenses = await Expense.find({"userId" : userId, "name" : name}).sort( { currentYear:1 } ).sort({currentMonth: 1,});
                 return expenses;
             } catch (err) {
                 console.log(err);
@@ -35,13 +56,10 @@ const resolvers = {
     Mutation: {
         addRangeExpenses: async (_, {input}, ctx) => {
             const {monthAmount, name, amount, startMonth, startYear, type} = input;
-            console.log('month: ',startMonth, 'year: ',startYear)
             const { user } = ctx;
             try {
                 const expenses = [];
                 for(let i = 0; i < monthAmount; i++ ){
-                    console.log('month: ', ((startMonth + i) % 12), 'year: ', startYear + Math.floor((startMonth + i) /12));
-                    console.log('-----------------------')
                     const expense = new Expense(
                         {
                             name: name,
@@ -92,6 +110,21 @@ const resolvers = {
                     {_id: new ObjectId(expenseId)}, query, {new: true});
                 return expense;
 
+            } catch (err) {
+                console.log(err);
+                return (err);
+            }
+
+        },
+        updateExpenseName: async (_, {input}, ctx) => {
+            const {oldName, newName} = input;
+            const { user } = ctx;
+            try {
+                let query = { $set: { name: newName } };
+                const expense = await Expense.updateMany(
+                    {userId: new ObjectId(user.id), name: oldName}, query, {new: true});
+                    console.log(expense);
+                return expense;
             } catch (err) {
                 console.log(err);
                 return (err);

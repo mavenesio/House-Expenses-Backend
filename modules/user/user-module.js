@@ -1,12 +1,10 @@
+// @ts-nocheck
 import { GraphQLModule } from '@graphql-modules/core';
 import gql from 'graphql-tag';
-const User = require('../../models/User');
-const UserPreference = require('../../models/UserPreference');
-const bcrypjs = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-var ObjectId = require('mongoose').Types.ObjectId;
-require('dotenv').config({path: 'variable.env'});
-
+import * as AuthUtils from '../auth/auth-utils';
+import User from '../../models/User';
+import UserPreference from '../../models/UserPreference';
+import mongoose from 'mongoose';
 
 export const UserModule = new GraphQLModule({
     name:'expense',
@@ -46,7 +44,7 @@ export const UserModule = new GraphQLModule({
     resolvers: {
         Query: {
             getUser: async (_, {token}) => {
-                const userId = await jwt.verify(token, process.env.SECRET);
+                const userId = AuthUtils.getUserFromToken(token);
                 return userId
             }
         },
@@ -56,21 +54,18 @@ export const UserModule = new GraphQLModule({
                 try { 
                     const existingUser = await User.findOne({email});
                     if(existingUser) {throw new Error('Existing User')}
-                    const salt = await bcrypjs.genSalt(10);
-                    let cryptedPassword = await bcrypjs.hash(password, salt); 
-                            
+                    let cryptedPassword = await AuthUtils.hashPassword(email, 10); 
                     const user = new User({
                         firstName,
                         lastName,
                         email,
                         password: cryptedPassword,
                     });
-                    // @ts-ignore
                     await user.save(((err, user) => {
                         new UserPreference({
                             key:'Mode',
                             value:'dark',
-                            userId: new ObjectId(user._id),  
+                            userId: new mongoose.Types.ObjectId(user._id),  
                         }).save()
                     }));
                     return user;
@@ -81,12 +76,12 @@ export const UserModule = new GraphQLModule({
             setUserPreference: async(_, {input}, ctx) => {
                 const {key, value} = input;
                 try {
-                    let preference = await UserPreference.findOne({key: key, userId: new ObjectId(ctx.user.id)});
+                    let preference = await UserPreference.findOne({key: key, userId: new mongoose.Types.ObjectId(ctx.user.id)});
                     if(!preference) {throw new Error('Preference not found')}
                     const query = { $set: {value: value  } };
 
                     preference = await UserPreference.findOneAndUpdate(
-                        {key: key, userId: new ObjectId(ctx.user.id)}, query, {new: true});
+                        {key: key, userId: new mongoose.Types.ObjectId(ctx.user.id)}, query, {new: true});
                     return preference;
 
                 } catch (err) {

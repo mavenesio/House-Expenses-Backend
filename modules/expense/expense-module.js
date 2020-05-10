@@ -1,10 +1,8 @@
 import { GraphQLModule } from '@graphql-modules/core';
 import {AuthModule} from '../auth/auth-module';
 import gql from 'graphql-tag';
-const Expense = require('../../models/Expense');
-var ObjectId = require('mongoose').Types.ObjectId;
-require('dotenv').config({path: 'variable.env'});
-
+import Expense from '../../models/Expense';
+import mongoose from 'mongoose';
 
 export const ExpenseModule = new GraphQLModule({
     name:'expense',
@@ -88,7 +86,7 @@ export const ExpenseModule = new GraphQLModule({
         Query: {
             getExpenses: async (_, {input}, ctx) => {
                 const {month, year} = input;
-                const userId = new ObjectId(ctx.user.id);
+                const userId = new mongoose.Types.ObjectId(ctx.user.id);
                 try {               
                     const expenses = await Expense.find({"userId" : userId, "currentMonth" : month, "currentYear": year });
                     return expenses;
@@ -100,7 +98,7 @@ export const ExpenseModule = new GraphQLModule({
             getAllExpenses: async (root, {}, {user}) => {
                 console.log('**');
                 console.log('-', user);
-                const userId = new ObjectId(user.id);
+                const userId = new mongoose.Types.ObjectId(user.id);
                 try {               
                     const expenses = await Expense.find({"userId" : userId})
                                                   .distinct("name", (error, results) => results);
@@ -112,7 +110,7 @@ export const ExpenseModule = new GraphQLModule({
             },
             getExpenseData: async (_, {input}, ctx) => {
                 const {name} = input;
-                const userId = new ObjectId(ctx.user.id);
+                const userId = new mongoose.Types.ObjectId(ctx.user.id);
                 try {               
                     const expenses = await Expense.find({"userId" : userId, "name" : name}).sort( { currentYear:1 } ).sort({currentMonth: 1,});
                     return expenses;
@@ -139,7 +137,7 @@ export const ExpenseModule = new GraphQLModule({
                                 startYear: startYear,
                                 currentMonth: ((startMonth + i) % 12),
                                 currentYear: startYear + Math.floor((startMonth + i) /12),
-                                userId: new ObjectId(user.id),
+                                userId: new mongoose.Types.ObjectId(user.id),
                             });
                         expense.save();
                         expenses.push(expense);
@@ -155,11 +153,11 @@ export const ExpenseModule = new GraphQLModule({
             },
             deleteExpense: async (_, {input}, ctx) => {
                 const {expenseId, deleteType, name} = input;
-                const userId = new ObjectId(ctx.user.id);
+                const userId = new mongoose.Types.ObjectId(ctx.user.id);
                 try {
                     if(ctx.user === undefined) throw new Error('User is not found.');
                     let query = {userId: userId};
-                    if(deleteType === 'One') query = {...query, _id: ObjectId(expenseId)}
+                    if(deleteType === 'One') query = {...query, _id: mongoose.Types.ObjectId(expenseId)}
                     if(deleteType === 'allNonPayments') query = {...query, name: name, paid: false}
                     if(deleteType === 'All') query = {...query, name: name}
                     // @ts-ignore
@@ -174,13 +172,13 @@ export const ExpenseModule = new GraphQLModule({
                 const {expenseId, amount, paid, type} = input;
                 try {
                     if(amount === undefined && type === undefined && paid === undefined) throw new Error('Invalid parameters.')
-                    let expense = await Expense.findById(new ObjectId(expenseId));
+                    let expense = await Expense.findById(new mongoose.Types.ObjectId(expenseId));
                     if(!expense) {throw new Error('Expense not found')}
                     let query = { $set: {  } };
                     if(amount !== undefined) query.$set = { ...query.$set, amount: amount, type: type };
                     if(paid !== undefined) query.$set = {...query.$set,paid: paid };
                     expense = await Expense.findOneAndUpdate(
-                        {_id: new ObjectId(expenseId)}, query, {new: true});
+                        {_id: new mongoose.Types.ObjectId(expenseId)}, query, {new: true});
                     return expense;
 
                 } catch (err) {
@@ -195,7 +193,7 @@ export const ExpenseModule = new GraphQLModule({
                 try {
                     let query = { $set: { name: newName } };
                     const expense = await Expense.updateMany(
-                        {userId: new ObjectId(user.id), name: oldName}, query, {new: true});
+                        {userId: new mongoose.Types.ObjectId(user.id), name: oldName}, query, {new: true});
                     return expense;
                 } catch (err) {
                     console.log(err);

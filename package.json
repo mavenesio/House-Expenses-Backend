@@ -4,9 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "run": "nodemon -r esm index.js",
-    "start": "node .",
-    "dev": "nodemon ."
+    "start": "node -r esm index.js",
+    "dev": "nodemon -r esm index.js"
   },
   "repository": {
     "type": "git",

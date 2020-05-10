@@ -30,6 +30,7 @@ const resolvers = {
             const userId = new ObjectId(ctx.user.id);
             try {               
                 const expenses = await Expense.find({"userId" : userId})
+                                              // @ts-ignore
                                               .distinct("name", (error, results) => results);
                 return expenses.map(value => {return ({name: value})});
             } catch (err) {
@@ -74,8 +75,10 @@ const resolvers = {
                     expense.save();
                     expenses.push(expense);
                 }
+                const now = new Date();
                 // @ts-ignore
-                return expenses.find(expense => expense.currentMonth === startMonth);
+                const currentExpense = expenses.find(expense => expense.currentMonth == now.getMonth() && expense.currentYear == now.getFullYear());
+                return currentExpense;
             } catch (err) {
                 console.log(err);
                 return (err);
@@ -90,6 +93,7 @@ const resolvers = {
                 if(deleteType === 'One') query = {...query, _id: ObjectId(expenseId)}
                 if(deleteType === 'allNonPayments') query = {...query, name: name, paid: false}
                 if(deleteType === 'All') query = {...query, name: name}
+                // @ts-ignore
                 const data = await Expense.remove(query);
                 return true;                
             } catch (err) {
@@ -97,6 +101,7 @@ const resolvers = {
                 return (err);
             }
         },
+        // @ts-ignore
         updateExpense: async (_, {input}, ctx) => {
             const {expenseId, amount, paid, type} = input;
             try {
@@ -123,7 +128,6 @@ const resolvers = {
                 let query = { $set: { name: newName } };
                 const expense = await Expense.updateMany(
                     {userId: new ObjectId(user.id), name: oldName}, query, {new: true});
-                    console.log(expense);
                 return expense;
             } catch (err) {
                 console.log(err);
@@ -131,6 +135,7 @@ const resolvers = {
             }
 
         },
+        // @ts-ignore
         addUser: async (_, {input}, ctx) => {
             const {email, password, firstName, lastName} = input;
             try { 
@@ -145,6 +150,7 @@ const resolvers = {
                     email,
                     password: cryptedPassword,
                 });
+                // @ts-ignore
                 await user.save(((err, user) => {
                     new UserPreference({
                         key:'Mode',
@@ -175,6 +181,7 @@ const resolvers = {
         },
         userAuthorization: async (_, {input}, ctx) => {
             const {email, password} = input;
+            console.log('2')
 
             const existingUser = await User.findOne({email});
             if(!existingUser) {throw new Error('User not found')};

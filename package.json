@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "run": "nodemon -r esm index.js",
     "start": "node .",
     "dev": "nodemon ."
   },
@@ -18,14 +19,24 @@
   },
   "homepage": "https://github.com/Venedictto/House-Expenses-Backend#readme",
   "dependencies": {
+    "@graphql-modules/core": "^0.7.16",
     "apollo-link-context": "^1.0.20",
     "apollo-server": "^2.12.0",
+    "apollo-server-express": "^2.13.0",
     "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
     "dotenv": "^8.2.0",
+    "esm": "^3.2.25",
+    "express": "^4.17.1",
+    "graphql": "^15.0.0",
+    "graphql-middleware": "^4.0.2",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.10"
   },
   "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/preset-env": "^7.9.6",
+    "@babel/register": "^7.9.0",
     "nodemon": "^2.0.3"
   }
 }

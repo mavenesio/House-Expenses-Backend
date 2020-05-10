@@ -1,17 +1,27 @@
 const { ApolloServer} = require('apollo-server');
-const typeDefs = require('./db/schema');
-const resolvers = require('./db/resolvers');
-const jwt = require('jsonwebtoken');
 const connectDB = require('./config/db');
 
+import { GraphQLModule } from '@graphql-modules/core';
+import { UserModule } from './modules/user/user-module';
+import { ExpenseModule } from './modules/expense/expense-module';
+import { AuthModule } from './modules/auth/auth-module';
+
+export const appModule = new GraphQLModule({
+    imports: [
+      AuthModule,
+      UserModule,
+      ExpenseModule,
+    ],
+  });
+  
+  const { schema, context } = appModule;
 
 connectDB();
 
 
 //server
 const server = new ApolloServer({
-    typeDefs,
-    resolvers,
+    schema,
     cors: {
       origin: "*",
       methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
@@ -19,25 +29,8 @@ const server = new ApolloServer({
       optionsSuccessStatus: 204,
       credentials: true
     },
-    context: ({req}) => {
-        const token = req.headers['authorization'] || '';
-        if(token){
-            try {
-                const user = jwt.verify(token.replace('Bearer ', ''), process.env.SECRET);
-                return {
-                    user
-                }
-            } catch (err) {
-                console.log(err);
-            }
-        }
-        const ctx = {
-            token: '123'
-        }
-        return ctx
-    }
-
-});
+    context
+ });
 
 // run server
 

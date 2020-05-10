@@ -21,9 +21,12 @@ const typeDefs = gql`
         email: String
         password: String
     }
+    input UserPreferenceInput {
+        key:String
+        value: String
+    }
 
     # AUTHORIZATION
-
     type LoginOutput {
         mode: String
         token: String
@@ -32,7 +35,6 @@ const typeDefs = gql`
         email: String
         password: String
     }
-
 
     #EXPENSES
     type Expense {
@@ -53,7 +55,6 @@ const typeDefs = gql`
         month: Int!,
         year: Int!
     }
-
     input ExpenseInput {
         name: String!
         type: String!
@@ -62,7 +63,6 @@ const typeDefs = gql`
         startMonth: Int!
         startYear: Int!
     }
-
     input RangeExpenseInput {
         name: String!
         type: String!
@@ -82,7 +82,6 @@ const typeDefs = gql`
     type DeleteExpenseOutput {
         success: Boolean
     }
-
     input UpdateExpenseInput {
         expenseId: ID!
         amount: Float
@@ -93,9 +92,8 @@ const typeDefs = gql`
         newName: String!
         oldName: String!
     }
-    input UserPreferenceInput {
-        key:String
-        value: String
+    input getExpenseReportInput {
+        names: [String]!
     }
 
     type Query {
@@ -103,6 +101,8 @@ const typeDefs = gql`
         getExpenses(input: GetExpensesInput!) : [Expense]
         getAllExpenses: [ExpenseNames]
         getExpenseData(input: getExpenseDataInput): [Expense]
+
+        getExpenseReport(input: getExpenseReportInput ): [[String]]
     }
 
     type Mutation {

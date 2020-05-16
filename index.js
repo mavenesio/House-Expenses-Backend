@@ -36,7 +36,7 @@ const server = new ApolloServer({
 
 server.listen({port: process.env.PORT || 4000}).then(
     ({url}) => {
-
-        console.log(`server ready in URL ${url}`);        
+        console.log(`server ready in URL ${url}`);    
+        console.log(`Environment: ${process.env.NODE_ENV}`)    
     }
 )

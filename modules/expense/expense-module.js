@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { GraphQLModule } from '@graphql-modules/core';
 import {AuthModule} from '../auth/auth-module';
 import gql from 'graphql-tag';
@@ -127,7 +128,10 @@ export const ExpenseModule = new GraphQLModule({
                 const { user } = ctx;
                 try {
                     const expenses = [];
+                    var now = new Date();
+                    var today = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
                     for(let i = 0; i < monthAmount; i++ ){
+                        const currentDate = new Date(`${startYear + Math.floor((startMonth + i) /12)}-${((startMonth + i) % 12)}-1`);
                         const expense = new Expense(
                             {
                                 name: name,
@@ -135,15 +139,14 @@ export const ExpenseModule = new GraphQLModule({
                                 type: type,
                                 startMonth: startMonth,
                                 startYear: startYear,
-                                currentMonth: ((startMonth + i) % 12),
-                                currentYear: startYear + Math.floor((startMonth + i) /12),
+                                currentMonth: currentDate.getMonth(),
+                                currentYear: currentDate.getFullYear(),
+                                paid: currentDate.getTime() < today.getTime(),
                                 userId: new mongoose.Types.ObjectId(user.id),
                             });
                         expense.save();
                         expenses.push(expense);
                     }
-                    const now = new Date();
-                    // @ts-ignore
                     const currentExpense = expenses.find(expense => expense.currentMonth == now.getMonth() && expense.currentYear == now.getFullYear());
                     return currentExpense;
                 } catch (err) {
@@ -160,7 +163,6 @@ export const ExpenseModule = new GraphQLModule({
                     if(deleteType === 'One') query = {...query, _id: mongoose.Types.ObjectId(expenseId)}
                     if(deleteType === 'allNonPayments') query = {...query, name: name, paid: false}
                     if(deleteType === 'All') query = {...query, name: name}
-                    // @ts-ignore
                     const data = await Expense.remove(query);
                     return true;                
                 } catch (err) {

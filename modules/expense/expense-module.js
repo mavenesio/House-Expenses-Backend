@@ -4,7 +4,7 @@ import {AuthModule} from '../auth/auth-module';
 import gql from 'graphql-tag';
 import Expense from '../../models/Expense';
 import mongoose from 'mongoose';
-import {isEqual, formatISO} from 'date-fns';
+import * as DateUtils from '../../utils/dateUtils';
 
 export const ExpenseModule = new GraphQLModule({
     name:'expense',
@@ -90,8 +90,8 @@ export const ExpenseModule = new GraphQLModule({
             getExpenses: async (_, {input}, ctx) => {
                 const {month, year} = input;
                 const userId = new mongoose.Types.ObjectId(ctx.user.id);
-                try {               
-                    const expenses = await Expense.find({"userId" : userId, "currentMonth" : month, "currentYear": year });
+                try {
+                    const expenses = await Expense.find({"userId" : userId, "currentDate" : DateUtils.getFirstDayOfMonth(year, month, true) });
                     return expenses;
                 } catch (err) {
                     console.log(err);
@@ -113,7 +113,7 @@ export const ExpenseModule = new GraphQLModule({
                 const {name} = input;
                 const userId = new mongoose.Types.ObjectId(ctx.user.id);
                 try {               
-                    const expenses = await Expense.find({"userId" : userId, "name" : name}).sort( { currentYear:1 } ).sort({currentMonth: 1,});
+                    const expenses = await Expense.find({"userId" : userId, "name" : name}).sort( { currentDate:1 } );
                     return expenses;
                 } catch (err) {
                     console.log(err);
@@ -128,8 +128,7 @@ export const ExpenseModule = new GraphQLModule({
                 const { user } = ctx;
                 try {
                         let currentExpense;
-                        const now = new Date();
-                        const today = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+                        const firstDayOfThisMonth = DateUtils.getFirstDayOfThisMonth(false);
                     for(let i = 0; i < monthAmount; i++ ){
                         const currentDate = new Date(`${startYear + Math.floor((startMonth + i) / 12)}-${(((startMonth + i) % 12) + 1)}-1`);
                         const expense = new Expense(
@@ -137,14 +136,14 @@ export const ExpenseModule = new GraphQLModule({
                                 name: name,
                                 amount: amount,
                                 type: type,
-                                currentDate: formatISO(currentDate, []),
-                                paid: currentDate.getTime() < today.getTime(),
+                                currentDate: DateUtils.getISOFromDate(currentDate),
+                                paid: DateUtils.compareDate(firstDayOfThisMonth, currentDate),
                                 userId: new mongoose.Types.ObjectId(user.id),
                             });
                         expense.save();
-                        if(isEqual(currentDate, today)) currentExpense = expense;
+                        if(DateUtils.DateEquals(currentDate, firstDayOfThisMonth)) currentExpense = expense;
                     }
-                    console.log(currentExpense);
+                    console.log('*')
                     return currentExpense;
                 } catch (err) {
                     console.log(err);

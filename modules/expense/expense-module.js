@@ -99,8 +99,6 @@ export const ExpenseModule = new GraphQLModule({
                 }
             }, 
             getAllExpenses: async (root, {}, {user}) => {
-                console.log('**');
-                console.log('-', user);
                 const userId = new mongoose.Types.ObjectId(user.id);
                 try {               
                     const expenses = await Expense.find({"userId" : userId})

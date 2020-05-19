@@ -181,7 +181,6 @@ const resolvers = {
         },
         userAuthorization: async (_, {input}, ctx) => {
             const {email, password} = input;
-            console.log('2')
 
             const existingUser = await User.findOne({email});
             if(!existingUser) {throw new Error('User not found')};

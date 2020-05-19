@@ -47,7 +47,7 @@ export const AuthModule = new GraphQLModule({
                 currentUser = AuthUtils.getUserFromToken(authToken);
         }
     } catch (e) {
-        console.warn(`Unable to authenticate using auth token: ${authToken}`);
+      console.log('Token error: ', e);
     }
     return {
         authToken,

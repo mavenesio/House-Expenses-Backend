@@ -4,6 +4,7 @@ import {AuthModule} from '../auth/auth-module';
 import gql from 'graphql-tag';
 import Expense from '../../models/Expense';
 import mongoose from 'mongoose';
+import {isEqual, formatISO} from 'date-fns';
 
 export const ExpenseModule = new GraphQLModule({
     name:'expense',
@@ -14,6 +15,7 @@ export const ExpenseModule = new GraphQLModule({
             name: String
             type: String
             amount: Float
+            currentDate: String
             startMonth: Int
             startYear: Int
             currentMonth: Int
@@ -127,27 +129,24 @@ export const ExpenseModule = new GraphQLModule({
                 const {monthAmount, name, amount, startMonth, startYear, type} = input;
                 const { user } = ctx;
                 try {
-                    const expenses = [];
-                    var now = new Date();
-                    var today = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
+                        let currentExpense;
+                        const now = new Date();
+                        const today = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
                     for(let i = 0; i < monthAmount; i++ ){
-                        const currentDate = new Date(`${startYear + Math.floor((startMonth + i) /12)}-${((startMonth + i) % 12)}-1`);
+                        const currentDate = new Date(`${startYear + Math.floor((startMonth + i) / 12)}-${(((startMonth + i) % 12) + 1)}-1`);
                         const expense = new Expense(
                             {
                                 name: name,
                                 amount: amount,
                                 type: type,
-                                startMonth: startMonth,
-                                startYear: startYear,
-                                currentMonth: currentDate.getMonth(),
-                                currentYear: currentDate.getFullYear(),
+                                currentDate: formatISO(currentDate, []),
                                 paid: currentDate.getTime() < today.getTime(),
                                 userId: new mongoose.Types.ObjectId(user.id),
                             });
                         expense.save();
-                        expenses.push(expense);
+                        if(isEqual(currentDate, today)) currentExpense = expense;
                     }
-                    const currentExpense = expenses.find(expense => expense.currentMonth == now.getMonth() && expense.currentYear == now.getFullYear());
+                    console.log(currentExpense);
                     return currentExpense;
                 } catch (err) {
                     console.log(err);

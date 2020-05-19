@@ -143,7 +143,6 @@ export const ExpenseModule = new GraphQLModule({
                         expense.save();
                         if(DateUtils.DateEquals(currentDate, firstDayOfThisMonth)) currentExpense = expense;
                     }
-                    console.log('*')
                     return currentExpense;
                 } catch (err) {
                     console.log(err);

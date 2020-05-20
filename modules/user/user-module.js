@@ -54,7 +54,7 @@ export const UserModule = new GraphQLModule({
                 try { 
                     const existingUser = await User.findOne({email});
                     if(existingUser) {throw new Error('Existing User')}
-                    let cryptedPassword = await AuthUtils.hashPassword(email, 10); 
+                    let cryptedPassword = await AuthUtils.hashPassword(password); 
                     const user = new User({
                         firstName,
                         lastName,
